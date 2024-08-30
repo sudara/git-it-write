@@ -197,12 +197,11 @@ class GIW_Parsedown extends ParsedownExtra{
         return $FigureBlock;
     }
 
-    protected function blockFencedCode($Line)
-    {
-        $Block = parent::blockFencedCode($Line);
+    protected function blockFencedCode( $Line ) {
+        $Block = parent::blockFencedCode( $Line );
 
-        if ($Block !== null) {
-          $Block['element']['attributes'] = array(
+        if ( $Block !== null ) {
+          $Block[ 'element' ][ 'attributes' ] = array(
               'class' => 'wp-block-code',
           );
           return $Block;
