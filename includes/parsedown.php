@@ -52,6 +52,18 @@ class GIW_Parsedown extends ParsedownExtra{
 
     }
 
+    // wrapping paragraphs with wp:paragraph block
+    // triggers wordpress into treating the content as gutenburg blocks
+    // vs. "classic" post content, resulting in nice code blocks too
+    // protected function paragraph($Line)
+    // {
+    //     return array(
+    //         'element' => array(
+    //             'name' => 'rawHtml',
+    //             'rawHtml' => "<!-- wp:paragraph --><p>" . $Line['text'] . "</p><!-- /wp:paragraph -->",
+    //         )
+    //     );
+    // }
     public function inlineLink( $excerpt ){
 
         $link_data = parent::inlineLink( $excerpt );
@@ -105,7 +117,7 @@ class GIW_Parsedown extends ParsedownExtra{
             if( $parts[1] != '_images' ){ // If the directory is not _images then continue with original
                 return $image_data;
             }
-            
+
             /**
              * Uploaded images key contains the full relative path of the image file and does NOT start with slash.
              * Removing the prefix slash in $image_url to fetch the details.
@@ -197,15 +209,52 @@ class GIW_Parsedown extends ParsedownExtra{
         return $FigureBlock;
     }
 
-    protected function blockFencedCode( $Line ) {
-        $Block = parent::blockFencedCode( $Line );
+    protected function blockFencedCode($Line)
+    {
+      // Match exactly 3 backticks, then optional language, then end of line
+      if (preg_match('/^`{3}(\w+)?$/', $Line['text'], $matches)) {
+          $language = $matches[1] ?? 'cpp';
+          return [
+              'char' => '`',
+              'language' => $language,
+              'element' => [
+                  'name' => 'rawHtml',
+                  'rawHtml' =>
+                      "<!-- wp:code {\"language\":\"" . htmlspecialchars($language) . "\"} -->\n" .
+                      "<pre class=\"wp-block-code\"><code>",
+                  'allowRawHtmlInSafeMode' => true
+              ],
+          ];
+      }
+    }
 
-        if ( $Block !== null ) {
-          $Block[ 'element' ][ 'attributes' ] = array(
-              'class' => 'wp-block-code',
-          );
-          return $Block;
+
+    protected function blockFencedCodeContinue($Line, $Block)
+    {
+        if (isset($Block['complete'])) {
+            return;
         }
+
+        if (isset($Block['interrupted'])) {
+            $Block['element']['rawHtml'] .= "\n";
+            unset($Block['interrupted']);
+        }
+
+        // Check for closing fence
+        if (preg_match('/^' . $Block['char'] . '{3,}[ ]*$/', $Line['text'])) {
+            $Block['element']['rawHtml'] .= "</code></pre>\n<!-- /wp:code -->";
+            $Block['complete'] = true;
+            return $Block;
+        }
+
+        // Add the line of code
+        $Block['element']['rawHtml'] .= htmlspecialchars($Line['body']) . "\n";
+        return $Block;
+    }
+
+    protected function blockFencedCodeComplete($Block)
+    {
+        return $Block;
     }
 }
 
