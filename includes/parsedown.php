@@ -228,7 +228,6 @@ class GIW_Parsedown extends ParsedownExtra{
       }
     }
 
-
     protected function blockFencedCodeContinue($Line, $Block)
     {
         if (isset($Block['complete'])) {
@@ -255,6 +254,46 @@ class GIW_Parsedown extends ParsedownExtra{
     protected function blockFencedCodeComplete($Block)
     {
         return $Block;
+    }
+
+    protected function blockQuote($Line)
+    {
+        // If line starts with > [!TIP|!NOTE|!WARNING]
+        if (preg_match('/^>[ ]?\[!(TIP|NOTE|WARNING)\](.*)$/i', $Line['text'], $matches)) {
+            $type = strtolower($matches[1]);
+            $text = ltrim($matches[2]);
+
+            return [
+                'callout' => true,
+                'type'    => $type,
+                'element' => [
+                    'name'       => 'p',
+                    'attributes' => ['class' => 'callout-' . $type],
+                    'handler'    => 'line',
+                    'text'       => $text,
+                ],
+            ];
+        }
+
+        // Otherwise keep normal blockquote logic
+        return parent::blockQuote($Line);
+    }
+
+    protected function blockQuoteContinue($Line, array $Block)
+    {
+        // If we're in a callout, accumulate lines
+        if (!empty($Block['callout'])) {
+            if (preg_match('/^>[ ]?(.*)/', $Line['text'], $matches)) {
+                // Append new line text to single string
+                $Block['element']['text'] .= ($Block['element']['text'] === '' ? '' : "\n") . $matches[1];
+                return $Block;
+            }
+            // End callout if we don't see >
+            return null;
+        }
+
+        // Otherwise, let Parsedown handle normal blockquotes
+        return parent::blockQuoteContinue($Line, $Block);
     }
 }
 
