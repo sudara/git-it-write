@@ -218,7 +218,7 @@ class GIW_Parsedown extends ParsedownExtra{
               'char' => '`',
               'language' => $language,
               'element' => [
-                  'name' => 'rawHtml',
+                  'name' => 'div',
                   'rawHtml' =>
                       "<!-- wp:code {\"language\":\"" . htmlspecialchars($language) . "\"} -->\n" .
                       "<pre class=\"wp-block-code\"><code>",
@@ -251,6 +251,7 @@ class GIW_Parsedown extends ParsedownExtra{
         return $Block;
     }
 
+    // see https://github.com/erusev/parsedown/pull/745/files
     protected function blockFencedCodeComplete($Block)
     {
         return $Block;
