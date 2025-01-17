@@ -220,8 +220,9 @@ class GIW_Parsedown extends ParsedownExtra{
               'element' => [
                   'name' => 'div',
                   'rawHtml' =>
-                      "<!-- wp:code {\"language\":\"" . htmlspecialchars($language) . "\"} -->\n" .
-                      "<pre class=\"wp-block-code\"><code>",
+                    "<!-- wp:code {\"language\":\"" . htmlspecialchars($language) . "\"} -->\n" .
+                    "<pre class=\"wp-block-code language-" . htmlspecialchars($language) . "\" tabindex=\"0\">" .
+                    "<code lang=\"" . htmlspecialchars($language) . "\" class=\"language-" . htmlspecialchars($language) . "\">",
                   'allowRawHtmlInSafeMode' => true
               ],
           ];
