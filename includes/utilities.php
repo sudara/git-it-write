@@ -5,7 +5,7 @@ if( ! defined( 'ABSPATH' ) ) exit;
 class GIW_Utils{
 
     public static function log( $message = '' ){
-        
+
         try{
 
             $file = self::log_file_path();
@@ -15,17 +15,17 @@ class GIW_Utils{
 
             $date = date('m/d/Y H:i');
             $line = sprintf( $line_tmpl, $date, $message );
-            
+
             file_put_contents( $file, $line.PHP_EOL , FILE_APPEND | LOCK_EX );
-            
+
             if( defined( 'GIW_ON_GUI' ) ){
                 show_message( $line );
             }
 
         }catch( Exception $e ){
-            
+
         }
-        
+
     }
 
     public static function read_log( $total_lines = 500 ){
@@ -69,7 +69,7 @@ class GIW_Utils{
     }
 
     public static function log_file_path(){
-        
+
         $logs_folder = self::logs_folder_path();
         return $logs_folder . '/log.log';
 
@@ -156,7 +156,7 @@ class GIW_Utils{
             $field_html .= '<option value="' . esc_attr( $k ) . '" ' . selected( $selected, $k, false ) . '>' . esc_html( $v ) . '</option>';
         }
         $field_html .= '</select>';
-        
+
         return $field_html;
 
     }
@@ -218,7 +218,7 @@ class GIW_Utils{
                 }
                 $url_parts = explode( '.', $props[ 'url' ] );
                 $extension = end( $url_parts );
-                if( !in_array( $extension, array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp' ) ) ){
+                if( !in_array( $extension, array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp', 'svg' ) ) ){
                     continue; // Unable to get extension for the file, skipping.
                 }
                 $new_key = '_images/' . $key . '.' . $extension; // Git relative path does not start with slash
@@ -226,7 +226,7 @@ class GIW_Utils{
                 $uploaded_images[ $new_key ] = $props;
             }
             update_option( 'giw_uploaded_images', $uploaded_images );
-            
+
             $metadata[ 'fix_uploaded_images_key' ] = 'root_dir';
             update_option( 'giw_metadata', $metadata );
         }
