@@ -68,7 +68,7 @@ class GIW_Publisher{
             'post_parent' => $parent
         ));
 
-        
+
         foreach( $posts as $index => $post ){
 
             $result[ $post->post_name ] = array(
@@ -117,7 +117,7 @@ class GIW_Publisher{
             }
 
         }
-        
+
         // Check if item props exist, in case of dir posts
         if( $item_props ){
             $item_content = $this->repository->get_item_content( $item_props );
@@ -298,7 +298,7 @@ class GIW_Publisher{
                     $this->create_post( $directory_post, $item_slug, $index_props, $parent );
 
                 }else{
-                    
+
                     // If index posts exists for the directory
                     if( array_key_exists( 'index', $item_props[ 'items' ] ) ){
                         $index_props = $item_props[ 'items' ][ 'index' ];
@@ -370,7 +370,7 @@ class GIW_Publisher{
 
             $uploaded_image_url = wp_get_attachment_url( $uploaded_image_id );
 
-            // Check if image is uploaded correctly and 
+            // Check if image is uploaded correctly and
             if( !empty( $uploaded_image_url ) ){
 
                 GIW_Utils::log( 'Image is uploaded [' . $uploaded_image_url . ']. ID: ' . $uploaded_image_id );
@@ -391,11 +391,11 @@ class GIW_Publisher{
             }
 
         }
-        
+
     }
 
     /**
-     * Uploads image from a URL. A modified version of `media_sideload_image` function 
+     * Uploads image from a URL. A modified version of `media_sideload_image` function
      * to honor authentication while fetching image data with GET from private repositories
      */
     public function upload_image( $image_props, $post_id = 0, $desc = null, $return_type = 'html' ) {
@@ -404,7 +404,7 @@ class GIW_Publisher{
 
         if ( ! empty( $file ) ) {
 
-            $allowed_extensions = array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp' );
+            $allowed_extensions = array( 'jpg', 'jpeg', 'jpe', 'png', 'gif', 'webp', 'svg' );
             $allowed_extensions = apply_filters( 'image_sideload_extensions', $allowed_extensions, $file );
             $allowed_extensions = array_map( 'preg_quote', $allowed_extensions );
 
@@ -414,7 +414,7 @@ class GIW_Publisher{
             if ( ! $matches ) {
                 return new WP_Error( 'image_sideload_failed', __( 'Unsupported image format.' ) );
             }
-    
+
             $file_array = array();
             $file_array['name'] = wp_basename( $matches[0] );
 
@@ -439,36 +439,36 @@ class GIW_Publisher{
             if ( is_wp_error( $file_array['tmp_name'] ) ) {
                 return $file_array['tmp_name'];
             }
-    
+
             // Loads the downloaded image file to the library. Temporary file is deleted here after upload.
             $id = media_handle_sideload( $file_array, $post_id, $desc );
-    
+
             // If error storing permanently, unlink.
             if ( is_wp_error( $id ) ) {
                 @unlink( $file_array['tmp_name'] );
                 return $id;
             }
-    
+
             // Store the original attachment source in meta.
             add_post_meta( $id, '_source_url', $file );
-    
+
             // If attachment ID was requested, return it.
             if ( 'id' === $return_type ) {
                 return $id;
             }
-    
+
             $src = wp_get_attachment_url( $id );
         }
-    
+
         // Finally, check to make sure the file has been saved, then return the HTML.
         if ( ! empty( $src ) ) {
             if ( 'src' === $return_type ) {
                 return $src;
             }
-    
+
             $alt = isset( $desc ) ? esc_attr( $desc ) : '';
             $html = "<img src='$src' alt='$alt' />";
-    
+
             return $html;
         } else {
             return new WP_Error( 'image_sideload_failed' );
